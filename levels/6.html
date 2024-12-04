@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --agent-color: #00ff00;
+            --danger-color: #ff0000;
+            --safe-color: #007700;
+        }
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #000;
+            color: var(--agent-color);
+            font-family: monospace;
+            overflow: hidden;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            height: 100vh;
+        }
+        #simulation-area {
+            position: relative;
+            border-right: 1px solid var(--agent-color);
+        }
+        #control-panel {
+            padding: 20px;
+            background: rgba(0, 20, 0, 0.9);
+        }
+        .agent {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--agent-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        .agent.smith {
+            background: var(--danger-color);
+        }
+        .agent.neo {
+            background: var(--safe-color);
+            box-shadow: 0 0 10px var(--safe-color);
+        }
+        .path {
+            position: absolute;
+            background: rgba(0, 255, 0, 0.1);
+            pointer-events: none;
+        }
+        .control-group {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--agent-color);
+        }
+        .button {
+            background: transparent;
+            border: 1px solid var(--agent-color);
+            color: var(--agent-color);
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid var(--agent-color);
+            height: 150px;
+            overflow-y: auto;
+        }
+        .firewall {
+            position: absolute;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid var(--danger-color);
+        }
+        #network-map {
+            position: absolute;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div id="simulation-area">
+            <canvas id="network-map"></canvas>
+        </div>
+        <div id="control-panel">
+            <div class="control-group">
+                <h3>Contrôles Système</h3>
+                <button class="button" id="analyze">Analyser Réseau</button>
+                <button class="button" id="hack">Hack Firewall</button>
+                <button class="button" id="dodge">Mode Esquive</button>
+            </div>
+            <div class="control-group">
+                <h3>Paramètres Agent</h3>
+                <button class="button" id="stealth">Mode Furtif</button>
+                <button class="button" id="distract">Diversion</button>
+                <button class="button" id="sync">Synchronisation</button>
+            </div>
+            <div id="status"></div>
+        </div>
+    </div>
+
+    <script>
+        class AgentSystem {
+            constructor() {
+                this.agents = [];
+                this.firewalls = [];
+                this.paths = [];
+                this.isStealthMode = false;
+                this.isDodgeMode = false;
+                this.simulation = document.getElementById('simulation-area');
+                this.status = document.getElementById('status');
+                this.networkMap = document.getElementById('network-map');
+                this.ctx = this.networkMap.getContext('2d');
+                
+                this.init();
+            }
+
+            init() {
+                this.setupCanvas();
+                this.createAgents();
+                this.createFirewalls();
+                this.setupEventListeners();
+                this.startSimulation();
+                this.log('Système initialisé. Attention aux Agents Smith.');
+            }
+
+            setupCanvas() {
+                this.networkMap.width = this.simulation.clientWidth;
+                this.networkMap.height = this.simulation.clientHeight;
+            }
+
+            createAgents() {
+                // Créer Agent Smith
+                for(let i = 0; i < 3; i++) {
+                    this.createAgent('smith', 
+                        Math.random() * this.simulation.clientWidth,
+                        Math.random() * this.simulation.clientHeight
+                    );
+                }
+                
+                // Créer Agent Neo
+                this.createAgent('neo', 50, 50);
+            }
+
+            createAgent(type, x, y) {
+                const agent = document.createElement('div');
+                agent.className = `agent ${type}`;
+                agent.style.left = `${x}px`;
+                agent.style.top = `${y}px`;
+                this.simulation.appendChild(agent);
+                
+                this.agents.push({
+                    element: agent,
+                    type: type,
+                    x: x,
+                    y: y,
+                    targetX: x,
+                    targetY: y
+                });
+            }
+
+            createFirewalls() {
+                const firewallPositions = [
+                    {x: 200, y: 100, width: 100, height: 20},
+                    {x: 400, y: 300, width: 20, height: 100},
+                    {x: 100, y: 400, width: 150, height: 20}
+                ];
+
+                firewallPositions.forEach(pos => {
+                    const firewall = document.createElement('div');
+                    firewall.className = 'firewall';
+                    firewall.style.left = `${pos.x}px`;
+                    firewall.style.top = `${pos.y}px`;
+                    firewall.style.width = `${pos.width}px`;
+                    firewall.style.height = `${pos.height}px`;
+                    this.simulation.appendChild(firewall);
+                    this.firewalls.push(firewall);
+                });
+            }
+
+            setupEventListeners() {
+                document.getElementById('analyze').addEventListener('click', () => this.analyzeNetwork());
+                document.getElementById('hack').addEventListener('click', () => this.hackFirewall());
+                document.getElementById('dodge').addEventListener('click', () => this.toggleDodgeMode());
+                document.getElementById('stealth').addEventListener('click', () => this.toggleStealthMode());
+                document.getElementById('distract').addEventListener('click', () => this.createDistraction());
+                document.getElementById('sync').addEventListener('click', () => this.synchronizeAgents());
+                
+                this.simulation.addEventListener('click', (e) => {
+                    if(!this.isDodgeMode) {
+                        const neo = this.agents.find(a => a.type === 'neo');
+                        if(neo) {
+                            neo.targetX = e.offsetX;
+                            neo.targetY = e.offsetY;
+                        }
+                    }
+                });
+            }
+
+            startSimulation() {
+                requestAnimationFrame(() => this.updateSimulation());
+            }
+
+            updateSimulation() {
+                this.ctx.clearRect(0, 0, this.networkMap.width, this.networkMap.height);
+                
+                // Mise à jour des positions des agents
+                this.agents.forEach(agent => {
+                    if(agent.type === 'smith') {
+                        const neo = this.agents.find(a => a.type === 'neo');
+                        if(neo && !this.isStealthMode) {
+                            agent.targetX = neo.x;
+                            agent.targetY = neo.y;
+                        }
+                    }
+
+                    const dx = agent.targetX - agent.x;
+                    const dy = agent.targetY - agent.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if(distance > 1) {
+                        agent.x += dx * 0.02;
+                        agent.y += dy * 0.02;
+                        agent.element.style.left = `${agent.x}px`;
+                        agent.element.style.top = `${agent.y}px`;
+                    }
+                });
+
+                // Vérification des collisions
+                const neo = this.agents.find(a => a.type === 'neo');
+                const smiths = this.agents.filter(a => a.type === 'smith');
+                
+                smiths.forEach(smith => {
+                    const dx = neo.x - smith.x;
+                    const dy = neo.y - smith.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if(distance < 30 && !this.isDodgeMode) {
+                        this.gameOver();
+                        return;
+                    }
+                });
+
+                // Dessin des connexions réseau
+                this.drawNetworkConnections();
+                
+                requestAnimationFrame(() => this.updateSimulation());
+            }
+
+            drawNetworkConnections() {
+                this.ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)';
+                this.ctx.beginPath();
+                this.agents.forEach(agent => {
+                    this.agents.forEach(other => {
+                        if(agent !== other) {
+                            this.ctx.moveTo(agent.x + 10, agent.y + 10);
+                            this.ctx.lineTo(other.x + 10, other.y + 10);
+                        }
+                    });
+                });
+                this.ctx.stroke();
+            }
+
+            analyzeNetwork() {
+                this.log('Analyse du réseau en cours...');
+                setTimeout(() => {
+                    const pattern = [3, 1, 4, 1, 5, 9];
+                    this.log(`Motif détecté: ${pattern.join('-')}`);
+                }, 1000);
+            }
+
+            hackFirewall() {
+                this.log('Tentative de hack du firewall...');
+                const firewall = this.firewalls[Math.floor(Math.random() * this.firewalls.length)];
+                firewall.style.background = 'rgba(0, 255, 0, 0.2)';
+                setTimeout(() => {
+                    firewall.style.background = 'rgba(255, 0, 0, 0.1)';
+                }, 2000);
+            }
+
+            toggleDodgeMode() {
+                this.isDodgeMode = !this.isDodgeMode;
+                this.log(`Mode esquive ${this.isDodgeMode ? 'activé' : 'désactivé'}`);
+            }
+
+            toggleStealthMode() {
+                this.isStealthMode = !this.isStealthMode;
+                const neo = this.agents.find(a => a.type === 'neo');
+                if(neo) {
+                    neo.element.style.opacity = this.isStealthMode ? '0.3' : '1';
+                }
+                this.log(`Mode furtif ${this.isStealthMode ? 'activé' : 'désactivé'}`);
+            }
+
+            createDistraction() {
+                const x = Math.random() * this.simulation.clientWidth;
+                const y = Math.random() * this.simulation.clientHeight;
+                
+                const distraction = document.createElement('div');
+                distraction.className = 'agent';
+                distraction.style.left = `${x}px`;
+                distraction.style.top = `${y}px`;
+                distraction.style.opacity = '0.5';
+                this.simulation.appendChild(distraction);
+                
+                setTimeout(() => {
+                    distraction.remove();
+                }, 3000);
+                
+                const smiths = this.agents.filter(a => a.type === 'smith');
+                smiths.forEach(smith => {
+                    smith.targetX = x;
+                    smith.targetY = y;
+                });
+            }
+
+            synchronizeAgents() {
+                if(this.checkSynchronizationPattern()) {
+                    this.log('Synchronisation réussie! Passage au niveau suivant...');
+                    setTimeout(() => {
+                        window.location.href = '7.html';
+                    }, 2000);
+                } else {
+                    this.log('Échec de la synchronisation. Motif incorrect.');
+                }
+            }
+
+            checkSynchronizationPattern() {
+                const pattern = this.paths.map(p => p.id).join('');
+                return pattern === '314159';
+            }
+
+            gameOver() {
+                this.log('Agent Neo capturé! Réinitialisation...');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+
+            log(message) {
+                const line = document.createElement('div');
+                line.textContent = `> ${message}`;
+                this.status.appendChild(line);
+                this.status.scrollTop = this.status.scrollHeight;
+            }
+        }
+
+        window.onload = () => {
+            new AgentSystem();
+        };
+    </script>
+</body>
+</html>

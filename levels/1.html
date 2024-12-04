@@ -1,0 +1,101 @@
+<style>
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  color: #0f0;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0,255,0,0.2);
+  animation: scan 5s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 0 }
+  100% { top: 100% }
+}
+
+.terminal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  padding: 2rem;
+  border: 2px solid #0f0;
+}
+
+.header {
+  font-size: 0.7rem;
+  white-space: pre;
+  margin-bottom: 2rem;
+}
+
+.sys-msg {
+  opacity: 0.7;
+  margin: 1rem 0;
+}
+
+form {
+  margin-top: 2rem;
+}
+
+input {
+  background: transparent;
+  border: 1px solid #0f0;
+  color: #0f0;
+  padding: 0.5rem;
+  width: 100%;
+  margin: 0.5rem 0;
+  font-family: monospace;
+}
+
+#login:valid + #password:valid ~ .submit {
+  display: block;
+}
+
+.submit {
+  display: none;
+  width: 100%;
+  padding: 0.5rem;
+  background: #0f0;
+  color: black;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+</style>
+
+<div class="container">
+  <div class="scanline"></div>
+  <div class="terminal">
+    <pre class="header">01011010 01001001 01001111 01001110
+  _____                    _             _ 
+ |_   _|                  (_)           | |
+   | | ___ _ __ _ __ ___  _ _ __   __ _| |
+   | |/ _ \ '__| '_ ` _ \| | '_ \ / _` | |
+   | |  __/ |  | | | | | | | | | | (_| | |
+   \_/\___|_|  |_| |_| |_|_|_| |_|\__,_|_|</pre>
+    
+    <div class="sys-msg">[SYSTÈME] Initialisation des protocoles...</div>
+    <div class="sys-msg">[SYSTÈME] Vérification intégrité matrice...</div>
+    <div class="sys-msg">[SYSTÈME] Analyse système en cours...</div>
+
+    <form action="2.html" method="GET">
+      <input type="text" id="login" pattern="neo" required placeholder="Login">
+      <input type="password" id="password" pattern="123matrix" required placeholder="Password">
+      <button class="submit">CONNEXION</button>
+    </form>
+  </div>
+</div>

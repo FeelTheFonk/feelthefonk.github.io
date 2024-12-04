@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --oracle-primary: #4a9;
+            --oracle-secondary: #2c5;
+            --oracle-accent: #ff8c00;
+        }
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #000;
+            color: var(--oracle-primary);
+            font-family: monospace;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+        }
+        .vision-panel {
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .prediction-wall {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        .prediction-card {
+            background: rgba(74, 153, 153, 0.1);
+            border: 1px solid var(--oracle-primary);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .prediction-card:hover {
+            background: rgba(74, 153, 153, 0.2);
+            transform: translateY(-5px);
+        }
+        .prediction-card.active {
+            border-color: var(--oracle-accent);
+            box-shadow: 0 0 15px var(--oracle-accent);
+        }
+        .oracle-interface {
+            border-left: 1px solid var(--oracle-primary);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .oracle-display {
+            flex: 1;
+            margin-bottom: 20px;
+            border: 1px solid var(--oracle-primary);
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .input-field {
+            background: transparent;
+            border: 1px solid var(--oracle-primary);
+            color: var(--oracle-primary);
+            padding: 8px;
+            font-family: monospace;
+        }
+        .matrix-symbols {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+        .symbol {
+            position: absolute;
+            font-size: 14px;
+            color: var(--oracle-secondary);
+        }
+        .vision-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            background: 
+                radial-gradient(
+                    circle at 50% 50%,
+                    transparent,
+                    rgba(0, 0, 0, 0.8)
+                );
+        }
+        .cookie-jar {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--oracle-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+        .cookie-jar:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .spoon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--oracle-primary);
+            transition: all 0.3s;
+            opacity: 0;
+        }
+        .spoon.reveal {
+            opacity: 1;
+            transform: rotate(45deg);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating-text {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="vision-panel">
+        <div class="matrix-symbols" id="symbolContainer"></div>
+        <div class="prediction-wall" id="predictionWall"></div>
+        <div class="vision-overlay"></div>
+        <div class="cookie-jar" id="cookieJar">🍪</div>
+        <div class="spoon" id="spoon">🥄</div>
+    </div>
+    <div class="oracle-interface">
+        <div class="oracle-display" id="oracleDisplay"></div>
+        <div class="input-panel">
+            <input type="text" class="input-field" id="userInput" placeholder="Entrez votre question...">
+            <button class="input-field" onclick="oracle.askQuestion()">Interroger l'Oracle</button>
+        </div>
+    </div>
+
+    <script>
+        class OracleSystem {
+            constructor() {
+                this.predictions = [
+                    { id: 1, text: "Le chemin que tu cherches n'est pas celui que tu vois", pattern: [3, 1, 4] },
+                    { id: 2, text: "La vérité se cache dans ce qui n'existe pas", pattern: [1, 5, 9] },
+                    { id: 3, text: "Ce qui est brisé révèle ce qui est caché", pattern: [2, 6, 5] },
+                    { id: 4, text: "Le reflet montre le chemin inverse", pattern: [5, 3, 5] },
+                    { id: 5, text: "La réponse est dans la question non posée", pattern: [8, 9, 7] },
+                    { id: 6, text: "Le choix est une illusion de l'esprit", pattern: [9, 3, 2] }
+                ];
+                this.activePatterns = [];
+                this.symbolElements = [];
+                this.init();
+            }
+
+            init() {
+                this.setupPredictionWall();
+                this.createMatrixSymbols();
+                this.setupEventListeners();
+                this.displayMessage("Bienvenue. Je t'attendais.");
+                this.animate();
+            }
+
+            setupPredictionWall() {
+                const wall = document.getElementById('predictionWall');
+                this.predictions.forEach(pred => {
+                    const card = document.createElement('div');
+                    card.className = 'prediction-card';
+                    card.innerHTML = `
+                        <div class="floating-text">${pred.text}</div>
+                    `;
+                    card.onclick = () => this.activatePrediction(pred);
+                    wall.appendChild(card);
+                });
+            }
+
+            createMatrixSymbols() {
+                const container = document.getElementById('symbolContainer');
+                for(let i = 0; i < 100; i++) {
+                    const symbol = document.createElement('div');
+                    symbol.className = 'symbol';
+                    symbol.style.left = `${Math.random() * 100}%`;
+                    symbol.style.top = `${Math.random() * 100}%`;
+                    symbol.textContent = String.fromCharCode(0x30A0 + Math.random() * 96);
+                    container.appendChild(symbol);
+                    this.symbolElements.push({
+                        element: symbol,
+                        x: Math.random() * 100,
+                        y: Math.random() * 100,
+                        speed: 0.5 + Math.random() * 2
+                    });
+                }
+            }
+
+            setupEventListeners() {
+                const cookieJar = document.getElementById('cookieJar');
+                const spoon = document.getElementById('spoon');
+                
+                cookieJar.onclick = () => {
+                    if(this.activePatterns.join('') === '314159') {
+                        this.displayMessage("Il n'y a pas de cuillère... Passage au niveau suivant.");
+                        setTimeout(() => {
+                            window.location.href = '8.html';
+                        }, 3000);
+                    } else {
+                        this.displayMessage("Tu dois d'abord comprendre la vérité.");
+                    }
+                };
+
+                document.getElementById('userInput').addEventListener('keypress', (e) => {
+                    if(e.key === 'Enter') {
+                        this.askQuestion();
+                    }
+                });
+            }
+
+            activatePrediction(prediction) {
+                const cards = document.querySelectorAll('.prediction-card');
+                cards[prediction.id - 1].classList.toggle('active');
+                
+                const index = this.activePatterns.indexOf(prediction.pattern[0]);
+                if(index === -1) {
+                    this.activePatterns = [...this.activePatterns, ...prediction.pattern];
+                } else {
+                    this.activePatterns = this.activePatterns.filter((_, i) => 
+                        i < index || i >= index + prediction.pattern.length
+                    );
+                }
+                
+                this.displayMessage(`Pattern activé: ${prediction.pattern.join('-')}`);
+            }
+
+            askQuestion() {
+                const input = document.getElementById('userInput');
+                const question = input.value.toLowerCase();
+                
+                if(question.includes('cuillère')) {
+                    document.getElementById('spoon').classList.add('reveal');
+                }
+                
+                const responses = {
+                    'matrix': 'La Matrix est partout...',
+                    'vérité': 'La vérité est ce que tu choisis de voir.',
+                    'chemin': 'Le chemin que tu cherches se trouve dans les nombres.',
+                    'choix': 'Tu as déjà fait ton choix. Tu essaies maintenant de comprendre pourquoi.'
+                };
+
+                const response = responses[Object.keys(responses).find(key => 
+                    question.includes(key)
+                )] || "La réponse est dans le pattern.";
+                
+                this.displayMessage(response);
+                input.value = '';
+            }
+
+            displayMessage(message) {
+                const display = document.getElementById('oracleDisplay');
+                const line = document.createElement('div');
+                line.textContent = `> ${message}`;
+                display.appendChild(line);
+                display.scrollTop = display.scrollHeight;
+            }
+
+            animate() {
+                this.symbolElements.forEach(symbol => {
+                    symbol.y += symbol.speed;
+                    if(symbol.y > 100) {
+                        symbol.y = -10;
+                        symbol.x = Math.random() * 100;
+                    }
+                    symbol.element.style.top = `${symbol.y}%`;
+                    symbol.element.style.left = `${symbol.x}%`;
+                });
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        const oracle = new OracleSystem();
+    </script>
+</body>
+</html>

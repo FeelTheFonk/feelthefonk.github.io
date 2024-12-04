@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --dojo-primary: #c0392b;
+            --dojo-secondary: #e74c3c;
+            --energy-color: #27ae60;
+        }
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #000;
+            font-family: monospace;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            overflow: hidden;
+        }
+        .training-area {
+            position: relative;
+            background: 
+                linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23111" width="100" height="100"/><path d="M0 50h100M50 0v100" stroke="%23222" stroke-width="0.5"/></svg>');
+        }
+        .character {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--dojo-primary);
+            transition: all 0.1s;
+            transform-origin: center;
+        }
+        .character.moving {
+            animation: characterMove 0.3s infinite alternate;
+        }
+        .move-trail {
+            position: absolute;
+            background: rgba(192, 57, 43, 0.2);
+            pointer-events: none;
+        }
+        .combo-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: var(--dojo-secondary);
+            font-size: 24px;
+        }
+        .control-panel {
+            padding: 20px;
+            background: #111;
+            border-left: 1px solid var(--dojo-primary);
+            color: var(--dojo-secondary);
+        }
+        .move-list {
+            margin-top: 20px;
+        }
+        .move {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid var(--dojo-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .move:hover {
+            background: rgba(192, 57, 43, 0.2);
+        }
+        .move.learned {
+            border-color: var(--energy-color);
+            color: var(--energy-color);
+        }
+        .energy-bar {
+            width: 100%;
+            height: 10px;
+            background: #222;
+            margin: 10px 0;
+        }
+        .energy-fill {
+            height: 100%;
+            background: var(--energy-color);
+            transition: width 0.3s;
+        }
+        @keyframes characterMove {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        .target {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--energy-color);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .sequence-display {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: var(--dojo-secondary);
+        }
+        .key-sequence {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: 1px solid var(--dojo-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="training-area" id="trainingArea">
+        <div class="combo-display" id="comboDisplay">Combo: 0</div>
+        <div class="sequence-display" id="sequenceDisplay"></div>
+        <div class="character" id="player"></div>
+    </div>
+    <div class="control-panel">
+        <h2>Formation au Combat</h2>
+        <div class="energy-bar">
+            <div class="energy-fill" id="energyFill" style="width: 0%"></div>
+        </div>
+        <div class="move-list" id="moveList"></div>
+    </div>
+
+    <script>
+        class TrainingSystem {
+            constructor() {
+                this.player = document.getElementById('player');
+                this.trainingArea = document.getElementById('trainingArea');
+                this.comboDisplay = document.getElementById('comboDisplay');
+                this.sequenceDisplay = document.getElementById('sequenceDisplay');
+                this.moveList = document.getElementById('moveList');
+                this.energyFill = document.getElementById('energyFill');
+                
+                this.position = { x: 300, y: 300 };
+                this.combo = 0;
+                this.currentSequence = [];
+                this.targets = [];
+                this.learnedMoves = new Set();
+                
+                this.moves = [
+                    { name: "Esquive", sequence: ["ArrowLeft", "ArrowRight"], desc: "Double pas latéral" },
+                    { name: "Saut", sequence: ["ArrowUp", "ArrowUp"], desc: "Double saut" },
+                    { name: "Coup de poing", sequence: ["KeyA", "KeyS"], desc: "Combo rapide" },
+                    { name: "Coup de pied", sequence: ["KeyD", "KeyF"], desc: "Coup circulaire" },
+                    { name: "Matrix", sequence: ["KeyQ", "KeyW", "KeyE"], desc: "Esquive bullet-time" }
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.setupMoveList();
+                this.setupEventListeners();
+                this.spawnTargets();
+                this.updatePlayer();
+            }
+
+            setupMoveList() {
+                this.moves.forEach(move => {
+                    const elem = document.createElement('div');
+                    elem.className = 'move';
+                    elem.innerHTML = `
+                        <strong>${move.name}</strong><br>
+                        ${move.desc}<br>
+                        <small>Séquence: ${move.sequence.join(' → ')}</small>
+                    `;
+                    this.moveList.appendChild(elem);
+                });
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    this.handleKeyPress(e.code);
+                });
+
+                this.trainingArea.addEventListener('click', (e) => {
+                    const rect = this.trainingArea.getBoundingClientRect();
+                    this.moveToPosition(
+                        e.clientX - rect.left,
+                        e.clientY - rect.top
+                    );
+                });
+            }
+
+            handleKeyPress(key) {
+                this.currentSequence.push(key);
+                this.checkSequences();
+                
+                setTimeout(() => {
+                    this.currentSequence = this.currentSequence
+                        .filter(k => k !== key);
+                }, 1000);
+                
+                this.updateSequenceDisplay();
+            }
+
+            checkSequences() {
+                this.moves.forEach(move => {
+                    if (this.checkSequence(move.sequence)) {
+                        this.executeMove(move);
+                    }
+                });
+            }
+
+            checkSequence(sequence) {
+                const len = sequence.length;
+                return JSON.stringify(this.currentSequence.slice(-len)) === 
+                       JSON.stringify(sequence);
+            }
+
+            executeMove(move) {
+                this.player.style.animation = 'none';
+                this.player.offsetHeight; // Trigger reflow
+                this.player.style.animation = null;
+                
+                this.combo++;
+                this.comboDisplay.textContent = `Combo: ${this.combo}`;
+                this.learnedMoves.add(move.name);
+                
+                const energy = (this.learnedMoves.size / this.moves.length) * 100;
+                this.energyFill.style.width = `${energy}%`;
+                
+                this.updateMoveList();
+                this.createMoveTrail();
+
+                if (this.learnedMoves.size === this.moves.length) {
+                    this.complete();
+                }
+            }
+
+            createMoveTrail() {
+                const trail = document.createElement('div');
+                trail.className = 'move-trail';
+                trail.style.left = `${this.position.x}px`;
+                trail.style.top = `${this.position.y}px`;
+                trail.style.width = '40px';
+                trail.style.height = '40px';
+                
+                this.trainingArea.appendChild(trail);
+                setTimeout(() => trail.remove(), 300);
+            }
+
+            moveToPosition(x, y) {
+                this.position = { x, y };
+                this.updatePlayer();
+                this.player.classList.add('moving');
+                setTimeout(() => {
+                    this.player.classList.remove('moving');
+                }, 300);
+            }
+
+            updatePlayer() {
+                this.player.style.left = `${this.position.x}px`;
+                this.player.style.top = `${this.position.y}px`;
+            }
+
+            updateMoveList() {
+                const moves = document.querySelectorAll('.move');
+                moves.forEach((move, i) => {
+                    if (this.learnedMoves.has(this.moves[i].name)) {
+                        move.classList.add('learned');
+                    }
+                });
+            }
+
+            updateSequenceDisplay() {
+                this.sequenceDisplay.innerHTML = this.currentSequence
+                    .map(key => `<span class="key-sequence">${key}</span>`)
+                    .join('');
+            }
+
+            spawnTargets() {
+                for (let i = 0; i < 5; i++) {
+                    const target = document.createElement('div');
+                    target.className = 'target';
+                    target.style.left = `${Math.random() * 80 + 10}%`;
+                    target.style.top = `${Math.random() * 80 + 10}%`;
+                    this.trainingArea.appendChild(target);
+                    this.targets.push(target);
+                }
+            }
+
+            complete() {
+                alert("Formation terminée. Je connais le Kung Fu.");
+                setTimeout(() => {
+                    window.location.href = '9.html';
+                }, 2000);
+            }
+        }
+
+        const training = new TrainingSystem();
+    </script>
+</body>
+</html>

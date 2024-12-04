@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --fall-duration: 15s;
+        }
+        body, html {
+            margin: 0;
+            height: 100vh;
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            overflow: hidden;
+        }
+        #falling-container {
+            perspective: 1000px;
+            height: 100vh;
+            animation: fall var(--fall-duration) linear infinite;
+        }
+        #tunnel {
+            position: relative;
+            transform-style: preserve-3d;
+            height: 100%;
+        }
+        .door {
+            position: absolute;
+            width: 100px;
+            height: 150px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            transform-style: preserve-3d;
+        }
+        .door:hover {
+            background: rgba(0, 255, 0, 0.3);
+            transform: scale(1.1);
+        }
+        .matrix-code {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        @keyframes fall {
+            from { transform: translateY(-100vh) rotateX(45deg); }
+            to { transform: translateY(100vh) rotateX(45deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="falling-container">
+        <h1 style="text-align: center; margin: 20px;">SUIVEZ LE LAPIN BLANC</h1>
+        <div id="tunnel"></div>
+    </div>
+    <canvas class="matrix-code"></canvas>
+
+    <script>
+        // Génération des portes avec la suite de Fibonacci
+        const tunnel = document.getElementById('tunnel');
+        let a = 1, b = 1;
+        const positions = [];
+
+        for(let i = 0; i < 10; i++) {
+            const door = document.createElement('div');
+            door.className = 'door';
+            door.textContent = a;
+            
+            // Position 3D aléatoire mais logique
+            const x = Math.cos(i * 137.5) * (300 - i * 20);
+            const y = Math.sin(i * 137.5) * (300 - i * 20);
+            const z = -i * 200;
+            
+            door.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${i * 137.5}deg)`;
+            positions.push([x, y, z]);
+            
+            door.addEventListener('click', () => checkDoor(a));
+            tunnel.appendChild(door);
+            
+            // Calcul du prochain nombre
+            const temp = a + b;
+            a = b;
+            b = temp;
+        }
+
+        // Porte cachée (89)
+        const hiddenDoor = document.createElement('div');
+        hiddenDoor.className = 'door';
+        hiddenDoor.textContent = '89';
+        hiddenDoor.style.transform = `translate3d(0, 0, -2000px)`;
+        hiddenDoor.style.opacity = '0.3';
+        hiddenDoor.addEventListener('click', () => {
+            window.location.href = '4.html';
+        });
+        tunnel.appendChild(hiddenDoor);
+
+        // Effet Matrix
+        const canvas = document.querySelector('.matrix-code');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%'.split('');
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        // Messages cachés en miroir dans la console
+        console.log('%c.niart el zevius', 'color: #0f0');
+        console.log('%c.emirp erbmon el zehcrehc', 'color: #0f0');
+        console.log('%c.ecneuqés al zevuort', 'color: #0f0');
+
+        function checkDoor(number) {
+            if (number === 89) {
+                window.location.href = '4.html';
+            } else {
+                // Animation de glitch sur erreur
+                document.body.style.animation = 'glitch 0.3s linear';
+                setTimeout(() => {
+                    document.body.style.animation = '';
+                }, 300);
+            }
+        }
+
+        setInterval(drawMatrix, 50);
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        :root {
+            --mirror-count: 6;
+            --reflection-opacity: 0.7;
+        }
+        body, html {
+            margin: 0;
+            height: 100vh;
+            background: #000;
+            color: #33ff33;
+            font-family: monospace;
+            overflow: hidden;
+        }
+        .mirror-room {
+            perspective: 1000px;
+            height: 100vh;
+            position: relative;
+        }
+        .mirror {
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            transform-style: preserve-3d;
+            transition: all 0.5s;
+            cursor: pointer;
+        }
+        .reflection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            opacity: var(--reflection-opacity);
+            pointer-events: none;
+        }
+        .truth-fragment {
+            display: none;
+            position: absolute;
+            color: #fff;
+            text-shadow: 0 0 5px #0f0;
+            font-size: 0.8em;
+        }
+        #console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 100px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid #0f0;
+            padding: 10px;
+            font-family: monospace;
+            color: #0f0;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="mirror-room">
+        <div id="console"></div>
+    </div>
+
+    <script>
+        class MirrorMaze {
+            constructor() {
+                this.room = document.querySelector('.mirror-room');
+                this.console = document.getElementById('console');
+                this.sequence = [];
+                this.truthFragments = [
+                    "4E 6F 74", "68 69 6E 67", "69 73", "72 65 61 6C"
+                ];
+                this.init();
+            }
+
+            init() {
+                this.createMirrors();
+                this.initializeFragments();
+                this.setupKeyboardListener();
+                this.logMessage("Initialisation du système de réflexion...");
+                this.logMessage("WARNING: Fragments de vérité détectés.");
+            }
+
+            createMirrors() {
+                for(let i = 0; i < 6; i++) {
+                    const mirror = document.createElement('div');
+                    mirror.className = 'mirror';
+                    const angle = (i * 60) * Math.PI / 180;
+                    const radius = 300;
+                    
+                    mirror.style.transform = `
+                        translate3d(
+                            ${Math.cos(angle) * radius + window.innerWidth/2 - 100}px,
+                            ${Math.sin(angle) * radius + window.innerHeight/2 - 150}px,
+                            0
+                        )
+                        rotateY(${i * 60}deg)
+                    `;
+                    
+                    const reflection = document.createElement('div');
+                    reflection.className = 'reflection';
+                    reflection.textContent = this.generateReflection();
+                    mirror.appendChild(reflection);
+                    
+                    mirror.addEventListener('click', () => this.handleMirrorClick(i));
+                    this.room.appendChild(mirror);
+                }
+            }
+
+            generateReflection() {
+                return [...Array(4)].map(() => 
+                    String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+                ).join('');
+            }
+
+            initializeFragments() {
+                this.truthFragments.forEach((fragment, i) => {
+                    const elem = document.createElement('div');
+                    elem.className = 'truth-fragment';
+                    elem.textContent = fragment;
+                    elem.style.transform = `translate3d(${Math.random() * window.innerWidth}px, ${Math.random() * window.innerHeight}px, 0)`;
+                    this.room.appendChild(elem);
+                });
+            }
+
+            handleMirrorClick(index) {
+                const mirror = document.querySelectorAll('.mirror')[index];
+                this.sequence.push(index);
+                
+                mirror.style.transform += ' scale(1.1)';
+                setTimeout(() => {
+                    mirror.style.transform = mirror.style.transform.replace(' scale(1.1)', '');
+                }, 300);
+
+                if (this.sequence.length === 4) {
+                    this.checkSequence();
+                }
+
+                // Easter egg : Si on clique sur les miroirs dans le bon ordre,
+                // les fragments de vérité apparaissent brièvement
+                if ([3, 1, 4, 1, 5, 9].includes(index)) {
+                    this.revealTruthFragments();
+                }
+            }
+
+            revealTruthFragments() {
+                document.querySelectorAll('.truth-fragment').forEach(fragment => {
+                    fragment.style.display = 'block';
+                    setTimeout(() => {
+                        fragment.style.display = 'none';
+                    }, 500);
+                });
+            }
+
+            checkSequence() {
+                // La séquence correcte est inspirée des premiers chiffres de pi
+                const correctSequence = [3, 1, 4, 1];
+                if (this.sequence.every((num, i) => num === correctSequence[i])) {
+                    this.logMessage("Séquence correcte. Initialisation de la transition...");
+                    setTimeout(() => {
+                        window.location.href = '5.html';
+                    }, 2000);
+                } else {
+                    this.logMessage("Séquence incorrecte. Réinitialisation...");
+                    this.sequence = [];
+                }
+            }
+
+            setupKeyboardListener() {
+                // Commandes secrètes
+                let buffer = '';
+                document.addEventListener('keydown', (e) => {
+                    buffer += e.key;
+                    buffer = buffer.slice(-10);
+                    
+                    if (buffer.includes('mirror')) {
+                        this.logMessage("HINT: Les miroirs reflètent π");
+                    }
+                    if (buffer.includes('truth')) {
+                        this.decodeFragments();
+                    }
+                });
+            }
+
+            decodeFragments() {
+                this.logMessage("Décodage des fragments...");
+                this.truthFragments.forEach(fragment => {
+                    const decoded = fragment.split(' ').map(hex => 
+                        String.fromCharCode(parseInt(hex, 16))
+                    ).join('');
+                    this.logMessage(`Fragment décodé: ${decoded}`);
+                });
+            }
+
+            logMessage(msg) {
+                const line = document.createElement('div');
+                line.textContent = `> ${msg}`;
+                this.console.appendChild(line);
+                this.console.scrollTop = this.console.scrollHeight;
+            }
+        }
+
+        // Initialisation
+        window.onload = () => {
+            new MirrorMaze();
+        };
+    </script>
+</body>
+</html>

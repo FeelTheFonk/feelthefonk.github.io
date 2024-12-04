@@ -1,0 +1,137 @@
+<style>
+.matrix-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: black;
+  overflow: hidden;
+}
+
+.matrix-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0,255,0,0.1) 50%, transparent 50%);
+  background-size: 100% 4px;
+  animation: matrix 2s linear infinite;
+}
+
+@keyframes matrix {
+  0% { transform: translateY(0) }
+  100% { transform: translateY(4px) }
+}
+
+.choice-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+}
+
+h1 {
+  font-family: monospace;
+  margin-bottom: 3rem;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  2% { transform: translateX(3px) }
+  4% { transform: translateX(-3px) }
+  6% { transform: translateX(0) }
+}
+
+.pills {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.pills a {
+  padding: 1rem 2rem;
+  border: 2px solid;
+  text-decoration: none;
+  font-family: monospace;
+  transition: transform 0.3s;
+}
+
+.pills a:first-child {
+  border-color: #f00;
+  color: #f00;
+}
+
+.pills a:last-child {
+  border-color: #00f;
+  color: #00f;
+}
+
+.real-pill {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pills:hover .real-pill {
+  opacity: 0.1;
+}
+
+.truth {
+  position: absolute;
+  opacity: 0.05;
+  color: #0f0;
+  font-family: monospace;
+  pointer-events: none;
+}
+
+.t1 { top: 20%; left: 20%; }
+.t2 { top: 40%; right: 20%; }
+.t3 { bottom: 20%; left: 40%; }
+
+.mirror {
+  position: fixed;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%) scale(0.1);
+  opacity: 0;
+  color: #0f0;
+  text-decoration: none;
+  font-family: monospace;
+  transition: all 0.3s;
+}
+
+.mirror:target {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  bottom: 2rem;
+}
+</style>
+
+<div class="matrix-bg"></div>
+
+<div class="choice-container">
+  <h1>FAIS TON CHOIX</h1>
+  
+  <div class="pills">
+    <a href="https://www.google.com">VÉRITÉ</a>
+    <a href="https://www.google.com">MENSONGE</a>
+    <a href="https://www.google.com" class="real-pill">LIBÉRATION</a>
+  </div>
+  
+  <div class="truth t1">4c 61 20 76 c3 a9 72 69 74 c3 a9</div>
+  <div class="truth t2">65 73 74 20 61 69 6c 6c 65 75 72 73</div>
+  <div class="truth t3">72 65 67 61 72 64 65 7a 20 6d 69 65 75 78</div>
+</div>
+
+<a href="3.html" class="mirror">...</a>
