@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --terminal-bg: #000;
+            --terminal-text: #0f0;
+            --terminal-hint: #0f06;
+            --terminal-error: #f00;
+            --terminal-success: #0f0;
+            --glitch-color: #0f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #terminal {
+            height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        #output {
+            margin-bottom: 20px;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .prompt {
+            color: var(--terminal-text);
+        }
+
+        #input {
+            background: transparent;
+            border: none;
+            color: var(--terminal-text);
+            font-family: inherit;
+            font-size: inherit;
+            width: calc(100% - 20px);
+            outline: none;
+        }
+
+        .line {
+            margin: 4px 0;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .error {
+            color: var(--terminal-error);
+        }
+
+        .success {
+            color: var(--terminal-success);
+        }
+
+        .hint {
+            color: var(--terminal-hint);
+            font-style: italic;
+        }
+
+        .hidden {
+            opacity: 0;
+            user-select: none;
+        }
+
+        .hidden:hover {
+            opacity: 0.7;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+
+        #cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: var(--terminal-text);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="output"></div>
+        <div class="command-line">
+            <span class="prompt">></span>
+            <input type="text" id="input" autofocus spellcheck="false">
+        </div>
+    </div>
+
+    <script>
+        class Terminal {
+            constructor() {
+                this.terminal = document.getElementById('terminal');
+                this.output = document.getElementById('output');
+                this.input = document.getElementById('input');
+                this.state = {
+                    connected: false,
+                    authenticated: false,
+                    synchronized: false,
+                    level: 11
+                };
+                this.commandHistory = [];
+                this.historyIndex = -1;
+                this.validCommands = new Set(['help', 'status', 'scan', 'connect', 'query', 'execute']);
+                this.setupEventListeners();
+                this.initialize();
+            }
+
+            initialize() {
+                this.print('Terminal d\'Introspection v11.0', 'line');
+                this.print('Initialisation système...', 'line');
+                this.print('Type "help" to begin...', 'hint');
+            }
+
+            setupEventListeners() {
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const command = this.input.value.trim();
+                        if (command) {
+                            this.processCommand(command);
+                            this.commandHistory.push(command);
+                            this.historyIndex = this.commandHistory.length;
+                            this.input.value = '';
+                        }
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (this.historyIndex > 0) {
+                            this.historyIndex--;
+                            this.input.value = this.commandHistory[this.historyIndex];
+                        }
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (this.historyIndex < this.commandHistory.length - 1) {
+                            this.historyIndex++;
+                            this.input.value = this.commandHistory[this.historyIndex];
+                        } else {
+                            this.input.value = '';
+                            this.historyIndex = this.commandHistory.length;
+                        }
+                    }
+                });
+            }
+
+            print(text, className = '', delay = 0) {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.textContent = text;
+                    line.className = className;
+                    this.output.appendChild(line);
+                    this.terminal.scrollTop = this.terminal.scrollHeight;
+                }, delay);
+            }
+
+            printHint(text, delay = 1000) {
+                this.print(text, 'hint hidden', delay);
+            }
+
+            processCommand(command) {
+                this.print(`> ${command}`, 'line');
+                const [cmd, ...args] = command.toLowerCase().split(' ');
+
+                if (!this.validCommands.has(cmd)) {
+                    this.print('Commande non reconnue.', 'error');
+                    return;
+                }
+
+                switch (cmd) {
+                    case 'help':
+                        this.showHelp();
+                        break;
+                    case 'status':
+                        this.showStatus();
+                        break;
+                    case 'scan':
+                        this.performScan();
+                        break;
+                    case 'connect':
+                        this.tryConnect(args[0]);
+                        break;
+                    case 'query':
+                        this.querySystem(args[0]);
+                        break;
+                    case 'execute':
+                        this.executeCommand(args);
+                        break;
+                }
+            }
+
+            showHelp() {
+                this.print('\nCommandes disponibles:', 'line');
+                this.print('- status       : État du système', 'line');
+                this.print('- scan         : Analyse de l\'environnement', 'line');
+                this.print('- connect      : Établir une connexion', 'line');
+                this.print('- query        : Interroger la base', 'line');
+                this.print('- execute      : Exécuter une séquence', 'line');
+                this.print('\nNote: Certaines commandes requièrent des paramètres spécifiques.', 'line');
+                this.printHint('L\'état du système révèle toujours quelque chose...');
+            }
+
+            showStatus() {
+                this.print('\nÉtat: ' + (this.state.connected ? 'CONNECTÉ' : 'DÉCONNECTÉ'), 'line');
+                this.print('Protocole: ' + (this.state.authenticated ? 'ACTIF' : 'INACTIF'), 'line');
+                this.print('Accès: ' + (this.state.synchronized ? 'ACCORDÉ' : 'RESTREINT'), 'line');
+                this.print('Nœuds détectés: 1', 'line');
+                this.printHint('Un scan pourrait révéler d\'autres nœuds...');
+            }
+
+            performScan() {
+                this.print('\nAnalyse en cours...', 'line');
+                setTimeout(() => {
+                    this.print('Nœuds détectés:', 'line');
+                    this.print('- LOCAL (127.0.0.1)', 'line');
+                    this.print('- MATRIX (7.3.1.4)', 'line');
+                    this.print('- ZION (12.1.9.99)', 'line');
+                    this.printHint('Une connexion doit être établie...');
+                }, 1000);
+            }
+
+            tryConnect(ip) {
+                if (!ip) {
+                    this.print('Erreur: Adresse IP requise', 'error');
+                    return;
+                }
+
+                if (ip === '7.3.1.4') {
+                    if (!this.state.synchronized) {
+                        this.print('\nTentative de connexion à MATRIX...', 'line');
+                        this.print('ERREUR: Authentification requise', 'error');
+                        this.printHint('query matrix_access pour les protocoles');
+                    } else {
+                        this.state.connected = true;
+                        this.print('\nConnexion établie...', 'success');
+                        this.print('Téléchargement des données...', 'line');
+                        setTimeout(() => {
+                            this.print('[MATRICE DÉVERROUILLÉE]', 'success');
+                            this.transitionToNext();
+                        }, 2000);
+                    }
+                } else {
+                    this.print('Connexion refusée.', 'error');
+                }
+            }
+
+            querySystem(param) {
+                if (param === 'matrix_access') {
+                    this.print('\nProtocoles d\'accès MATRIX:', 'line');
+                    this.print('1. Reconnaissance de pattern', 'line');
+                    this.print('2. Synchronisation temporelle', 'line');
+                    this.print('3. Validation quantique', 'line');
+                    this.print('\nFormat requis: execute quantum_sync [timestamp]', 'hint');
+                } else {
+                    this.print('Requête invalide.', 'error');
+                }
+            }
+
+            executeCommand(args) {
+                if (args[0] === 'quantum_sync' && args[1] === '314159') {
+                    this.print('\nSynchronisation quantique initiée...', 'line');
+                    setTimeout(() => {
+                        this.print('Patterns détectés...', 'line');
+                        this.print('Réalité en recalibration...', 'line');
+                        this.print('ACCÈS ACCORDÉ', 'success');
+                        this.state.synchronized = true;
+                    }, 1000);
+                } else {
+                    this.print('Séquence invalide.', 'error');
+                }
+            }
+
+            transitionToNext() {
+                document.body.classList.add('glitch');
+                setTimeout(() => {
+                    this.print('\nBienvenue au niveau 12...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '12.html';
+                    }, 2000);
+                }, 1000);
+            }
+        }
+
+        // Initialisation du terminal
+        document.addEventListener('DOMContentLoaded', () => {
+            window.terminal = new Terminal();
+        });
+    </script>
+</body>
+</html>
