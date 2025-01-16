@@ -683,16 +683,37 @@
             setInterval(draw, 35);
         };
 
-        // Smooth Scrolling
+        // Smooth Scrolling amélioré
         const scrollToSection = (id) => {
             const section = document.getElementById(id);
-            const offset = section.offsetTop - 80; // Adjust for header height
-            window.scrollTo({
-                top: offset,
-                behavior: 'smooth'
-            });
-            updateActiveNavDot(id);
+            if (section) {
+                const offset = section.offsetTop - 80;
+                window.scrollTo({
+                    top: offset,
+                    behavior: 'smooth'
+                });
+                updateActiveNavDot(id);
+                
+                // Mise à jour de l'URL sans rechargement
+                history.pushState(null, null, `#${id}`);
+            }
         };
+
+        // Gestion du retour arrière du navigateur
+        window.addEventListener('popstate', () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                scrollToSection(hash);
+            }
+        });
+
+        // Gestion du chargement initial avec hash
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                setTimeout(() => scrollToSection(hash), 100);
+            }
+        });
 
         // Section Observer
         const observeSection = (sections) => {
