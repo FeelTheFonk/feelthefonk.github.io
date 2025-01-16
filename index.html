@@ -327,16 +327,16 @@
     
     <header>
         <nav class="nav-container">
-            <a href="#" class="logo">C.S</a>
+            <a href="#" class="logo" onclick="scrollToTop(event)">C.S</a>
         </nav>
     </header>
 
-    <nav class="nav-dots">
-        <div class="nav-dot" data-label="Innovation" onclick="scrollToSection('innovation')"></div>
-        <div class="nav-dot" data-label="Expertise" onclick="scrollToSection('expertise')"></div>
-        <div class="nav-dot" data-label="Technologies" onclick="scrollToSection('tech')"></div>
-        <div class="nav-dot" data-label="Création" onclick="scrollToSection('creation')"></div>
-    </nav>
+	<nav class="nav-dots">
+		<div class="nav-dot" data-label="innovation" onclick="scrollToSection('innovation')"></div>
+		<div class="nav-dot" data-label="expertise" onclick="scrollToSection('expertise')"></div>
+		<div class="nav-dot" data-label="tech" onclick="scrollToSection('tech')"></div>
+		<div class="nav-dot" data-label="creation" onclick="scrollToSection('creation')"></div>
+	</nav>
 
     <section id="innovation">
         <div class="content-container">
@@ -766,6 +766,15 @@
                 });
             });
         };
+
+		// Back to Top
+		const scrollToTop = (e) => {
+			e.preventDefault();
+			window.scrollTo({
+				top: 0,
+				behavior: 'smooth'
+			});
+		};
 
         // Initialize Everything
         document.addEventListener('DOMContentLoaded', () => {
