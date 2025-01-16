@@ -683,21 +683,21 @@
             setInterval(draw, 35);
         };
 
-        // Smooth Scrolling amélioré
-        const scrollToSection = (id) => {
-            const section = document.getElementById(id);
-            if (section) {
-                const offset = section.offsetTop - 80;
-                window.scrollTo({
-                    top: offset,
-                    behavior: 'smooth'
-                });
-                updateActiveNavDot(id);
-                
-                // Mise à jour de l'URL sans rechargement
-                history.pushState(null, null, `#${id}`);
-            }
-        };
+	// Smooth Scrolling amélioré
+	const scrollToSection = (id) => {
+	    const section = document.getElementById(id);
+	    if (section) {
+	        section.scrollIntoView({ behavior: 'smooth' });
+	        
+	        // Mise à jour du point de navigation actif
+	        document.querySelectorAll('.nav-dot').forEach(dot => {
+	            dot.classList.remove('active');
+	            if (dot.getAttribute('data-label') === id) {
+	                dot.classList.add('active');
+	            }
+	        });
+	    }
+	};
 
         // Gestion du retour arrière du navigateur
         window.addEventListener('popstate', () => {
@@ -767,22 +767,33 @@
             });
         };
 
-		// Back to Top
-		const scrollToTop = (e) => {
-			e.preventDefault();
-			window.scrollTo({
-				top: 0,
-				behavior: 'smooth'
-			});
-		};
+	// Back to Top
+	const scrollToTop = (e) => {
+		e.preventDefault();
+		window.scrollTo({
+			top: 0,
+			behavior: 'smooth'
+		});
+	};
 
-        // Initialize Everything
-        document.addEventListener('DOMContentLoaded', () => {
-            createMatrixRain();
-            observeSection(document.querySelectorAll('section'));
-            handleParallax();
-            initTerminalEffect();
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialisation des nav-dots
+        document.querySelectorAll('.nav-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const section = dot.getAttribute('data-label');
+                scrollToSection(section);
+            });
         });
-    </script>
+
+        // Initialisation du bouton top
+        document.querySelector('.logo').addEventListener('click', scrollToTop);
+        
+        // Autres initialisations...
+        createMatrixRain();
+        observeSection(document.querySelectorAll('section'));
+        handleParallax();
+        initTerminalEffect();
+    });
+</script>
 </body>
 </html>
