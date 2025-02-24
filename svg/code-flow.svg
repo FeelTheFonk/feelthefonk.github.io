@@ -1,0 +1,26 @@
+<svg viewBox="0 0 400 200" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="codeGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(212,160,23,0)"/>
+      <stop offset="50%" stop-color="rgba(212,160,23,0.2)">
+        <animate attributeName="offset" values="0;1;0" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="rgba(212,160,23,0)"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M0,100 Q100,95 200,100 T400,100" 
+        stroke="url(#codeGlow)" 
+        fill="none" 
+        stroke-width="1"
+        opacity="0.5">
+    <animate attributeName="d" 
+             values="M0,100 Q100,95 200,100 T400,100;
+                     M0,100 Q100,105 200,100 T400,100;
+                     M0,100 Q100,95 200,100 T400,100"
+             dur="4s"
+             repeatCount="indefinite"
+             calcMode="spline"
+             keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/>
+  </path>
+</svg>
