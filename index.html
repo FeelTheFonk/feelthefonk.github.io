@@ -1,144 +1,362 @@
 <!DOCTYPE html>
 <html lang="fr">
-<meta charset="UTF-8">
-<meta content="width=device-width, initial-scale=1" name="viewport">
-<title>Clément Serriere • Innovation IT</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clément Serriere • Innovation IT</title>
 
-<link href="https://fonts.cdnfonts.com" rel="preconnect">
-<link href="https://fonts.cdnfonts.com/css/cyberpunk-is-not-dead" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap" rel="stylesheet">
-<link href="css/styles.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.cdnfonts.com">
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/cyberpunk-is-not-dead">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap&v=3.0.3" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
-<div class="background-overlay"></div>
-<div class="matrix"></div>
+  <!-- Lien vers la feuille de style -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
 
-<header>
+<body>
+  <div class="background-overlay"></div>
+  <div class="matrix"></div>
+
+  <header>
     <nav class="nav">
-        <a class="logo" href="#">C.S</a>
+      <a class="logo" href="#">C.S</a>
     </nav>
-</header>
+  </header>
 
-<nav class="dots">
+  <nav class="dots">
     <div class="orb" data-section="intro"></div>
     <div class="orb" data-section="expertise"></div>
     <div class="orb" data-section="tech"></div>
     <div class="orb" data-section="creation"></div>
-</nav>
+  </nav>
 
-<main>
+  <main>
+
+    <!-- Section #intro -->
     <section id="intro">
-        <div class="container">
-            <h1 class="title">Innovation</h1>
-            <div class="code">
-                <div class="fade typing">
-                    <span>class</span> Innovation:<br>
-                    expertise = {<br>
-                    "ia": "Generative",<br>
-                    "cyber": "DevSecOps",<br>
-                    "formateur": "IT & Sec"<br>
-                    }<br>
-                </div>
-            </div>
-            <div class="section-visual">
-                <object data="svg/code-flow.svg" type="image/svg+xml"></object>
-            </div>
+      <div class="container">
+        <h1 class="title">Innovation</h1>
+
+        <div class="code">
+          <div class="fade typing">
+            <span>class</span> Innovation:<br>
+            expertise = {<br>
+              "ia": "Generative",<br>
+              "cyber": "DevSecOps",<br>
+              "formateur": "IT & Sec"<br>
+            }<br>
+          </div>
+          <div class="section-visual">
+          </div>
         </div>
+				
+		<svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+		  <defs>
+			<!-- Zone d’affichage -->
+			<clipPath id="scrollMask">
+			  <rect x="0" y="0" width="300" height="80"></rect>
+			</clipPath>
+		  </defs>
+
+		  <style>
+			text {
+			  fill: rgba(212,160,23,0.3);
+			  font-family: monospace;
+			  font-size: 10px;
+			  letter-spacing: 0.15rem;
+			}
+			/* Le groupe va défiler verticalement de façon continue */
+			#scrollGroup {
+			  animation: infiniteScroll 5s linear infinite;
+			}
+			@keyframes infiniteScroll {
+			  0%   { transform: translateY(0); }
+			  100% { transform: translateY(-120px); }
+			}
+		  </style>
+
+		  <!-- On masque tout ce qui sort de 300x80 -->
+		  <g clip-path="url(#scrollMask)" id="scrollGroup">
+			<!-- Premier bloc de lignes (0->80) -->
+			<text x="20" y="10">0 1 1 0 1 0 1 0 1 1 0 1 1 0 1 0</text>
+			<text x="20" y="25">1 0 1 1 1 0 1 1 0 0 1 0 1 1 1 0</text>
+			<text x="20" y="40">1 1 0 0 1 0 0 1 1 0 1 1 0 0 1 0</text>
+			<text x="20" y="55">0 1 1 0 1 0 1 0 1 0 0 1 1 0 1 0</text>
+			<text x="20" y="70">1 1 1 1 0 1 0 0 1 1 1 1 1 1 0 1</text>
+
+			<!-- Deuxième bloc identique (80->160), pour le défilement sans “vide” -->
+			<text x="20" y="90">0 1 1 0 1 0 1 0 1 1 0 1 1 0 1 0</text>
+			<text x="20" y="105">1 0 1 1 1 0 1 1 0 0 1 0 1 1 1 0</text>
+			<text x="20" y="120">1 1 0 0 1 0 0 1 1 0 1 1 0 0 1 0</text>
+			<text x="20" y="135">0 1 1 0 1 0 1 0 1 0 0 1 1 0 1 0</text>
+			<text x="20" y="150">1 1 1 1 0 1 0 0 1 1 1 1 1 1 0 1</text>
+		  </g>
+		</svg>
+		
+      </div>
     </section>
 
+    <!-- Section #expertise -->
     <section id="expertise">
-        <div class="container">
-            <h2 class="title">Expertise</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Intelligence Artificielle</h3>
-                    <p>Génératif, Architectures RAG, LLM, ELK stack</p>
-                    <div class="skills">
-                        <span class="item pulse">IT</span>
-                        <span class="item pulse">Python</span>
-                        <span class="item pulse">Deep Learning</span>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Cybersécurité</h3>
-                    <p>Analyse, Protection, Formation</p>
-                    <div class="skills">
-                        <span class="item">Ethical Hacking</span>
-                        <span class="item">Sécurité Offensive</span>
-                        <span class="item">DevSecOps</span>
-                    </div>
-                </div>
+      <div class="container">
+        <h2 class="title">Expertise</h2>
+        <div class="grid">
+          
+          <!-- IA (avec circuit zigzag) -->
+          <div class="card">
+            <h3>Intelligence Artificielle</h3>
+            <p>Génératif, Architectures RAG, LLM, ELK stack</p>
+            <div class="skills">
+              <span class="item pulse">IT</span>
+              <span class="item pulse">Python</span>
+              <span class="item pulse">Deep Learning</span>
             </div>
-            <div class="section-visual">
-                <object data="svg/data-security.svg" type="image/svg+xml"></object>
+            <!-- Circuit animé -->
+            <svg viewBox="0 0 400 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="circuitGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="rgba(212,160,23,0)" />
+                  <stop offset="50%" stop-color="rgba(212,160,23,0.7)">
+                    <animate attributeName="offset"
+                             values="0;1;0"
+                             dur="2.5s"
+                             repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="100%" stop-color="rgba(212,160,23,0)" />
+                </linearGradient>
+              </defs>
+              <style>
+                path {
+                  stroke: url(#circuitGradient);
+                  stroke-width: 2;
+                  fill: none;
+                  stroke-linecap: round;
+                  stroke-dasharray: 6;
+                  stroke-dashoffset: 30;
+                  animation: dashMove 2s linear infinite;
+                }
+                @keyframes dashMove {
+                  to { stroke-dashoffset: 0; }
+                }
+              </style>
+              <path d="M50,100 H100 V50 H150 V150
+                       H200 V75 H250 V125 H300 V50 H350"/>
+            </svg>
+          </div>
+
+          <!-- Cybersécurité (avec Mandala) -->
+          <div class="card">
+            <h3>Cybersécurité</h3>
+            <p>Analyse, Protection, Formation</p>
+            <div class="skills">
+              <span class="item">Ethical Hacking</span>
+              <span class="item">Sécurité Offensive</span>
+              <span class="item">DevSecOps</span>
             </div>
+            <!-- Mandala stylisé, correctement centré -->
+            <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+              <style>
+                circle {
+                  fill: rgba(212,160,23,0.1);
+                  stroke: rgba(212,160,23,0.7);
+                  stroke-width: 2;
+                }
+                .ring {
+                  animation: rotateRing 8s linear infinite;
+                  transform-origin: 200px 100px; /* Centre du viewBox */
+                }
+                .pulse {
+                  animation: pulseMandala 4s ease-in-out infinite;
+                }
+                @keyframes rotateRing {
+                  0%   { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+                @keyframes pulseMandala {
+                  0%, 100% { r: 10; }
+                  50% { r: 15; }
+                }
+              </style>
+              <!-- Cercle central pulsant, centré sur (200,100) -->
+              <circle cx="200" cy="100" r="10" class="pulse" />
+              <!-- Anneau tournant (4 cercles autour) -->
+              <g class="ring">
+                <circle cx="130" cy="100" r="5" />
+                <circle cx="200" cy="40"  r="5" />
+                <circle cx="270" cy="100" r="5" />
+                <circle cx="200" cy="160" r="5" />
+              </g>
+            </svg>
+          </div>
+
         </div>
+      </div>
     </section>
 
+    <!-- Section #tech -->
     <section id="tech">
-        <div class="container">
-            <h2 class="title">Technologies</h2>
-            <div class="section-visual">
-                <object data="svg/signal-wave.svg" type="image/svg+xml"></object>
-            </div>
-            <div class="grid">
-                <div class="card">
-                    <h3>Infrastructure</h3>
-                    <div class="skills">
-                        <span class="item pulse">Networks</span>
-                        <span class="item pulse">Linux</span>
-                        <span class="item pulse">Windows/Server</span>
-                        <span class="item glow">Docker</span>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Développement</h3>
-                    <div class="skills">
-                        <span class="item pulse">Python</span>
-                        <span class="item pulse">API</span>
-                        <span class="item pulse">Automatisation</span>
-                        <span class="item glow">Full-Stack</span>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <h2 class="title">Technologies</h2>
+
+        <div class="section-visual">
+          <!-- (Optionnel) Vous pouvez ajouter un SVG de fond ici si nécessaire -->
         </div>
+
+        <div class="grid">
+          
+          <!-- Infrastructure (Serveur clignotant HORIZONTAL) -->
+          <div class="card">
+            <h3>Infrastructure</h3>
+            <div class="skills">
+              <span class="item pulse">Networks</span>
+              <span class="item pulse">Linux</span>
+              <span class="item pulse">Windows/Server</span>
+              <span class="item glow">Docker</span>
+            </div>
+            <!-- Serveur Clignotant, LED alignées horizontalement -->
+            <svg viewBox="0 0 400 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <style>
+                /* Réutilise blinkLED, LED clignotent en décalé */
+                .led {
+                  fill: rgba(212,160,23,0.7);
+                  animation: blinkLED 2s infinite;
+                }
+                .led:nth-child(odd) {
+                  animation-delay: 1s;
+                }
+                @keyframes blinkLED {
+                  0%, 100% {
+                    opacity: 0.3;
+                  }
+                  50% {
+                    opacity: 1;
+                  }
+                }
+              </style>
+              <!-- 5 voyants alignés horizontalement (même y=100, x progressif) -->
+              <circle cx="80"  cy="100" r="5" class="led" />
+              <circle cx="120" cy="100" r="5" class="led" />
+              <circle cx="160" cy="100" r="5" class="led" />
+              <circle cx="200" cy="100" r="5" class="led" />
+              <circle cx="240" cy="100" r="5" class="led" />
+            </svg>
+          </div>
+
+          <!-- Développement (Forme qui passe carré -> cercle) -->
+          <div class="card">
+            <h3>Développement</h3>
+            <div class="skills">
+              <span class="item pulse">Python</span>
+              <span class="item pulse">API</span>
+              <span class="item pulse">Automatisation</span>
+              <span class="item glow">Full-Stack</span>
+            </div>
+            <svg viewBox="0 0 400 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <style>
+                rect {
+                  fill: rgba(212,160,23,0.4);
+                  stroke: rgba(212,160,23,0.8);
+                  stroke-width: 2;
+                  rx: 0;
+                  ry: 0;
+                  transform-origin: 200px 100px; /* Centre */
+                  animation: shapeSpin 4s infinite ease-in-out;
+                }
+                @keyframes shapeSpin {
+                  0% {
+                    transform: rotate(0deg);
+                    rx: 0; ry: 0;
+                  }
+                  50% {
+                    transform: rotate(180deg);
+                    rx: 50; ry: 50; /* devient un cercle */
+                  }
+                  100% {
+                    transform: rotate(360deg);
+                    rx: 0; ry: 0;
+                  }
+                }
+              </style>
+              <!-- Rectangle centré dans 400x200 -->
+              <rect x="150" y="50" width="100" height="100" />
+            </svg>
+          </div>
+
+        </div>
+      </div>
     </section>
 
+    <!-- Section #creation -->
     <section id="creation">
-        <div class="container">
-            <h2 class="title">Création</h2>
-            <div class="section-visual">
-                <object data="svg/wave-spectrum.svg" type="image/svg+xml"></object>
-            </div>
-            <div class="grid">
-                <div class="card">
-                    <a class="anchor" href="https://github.com/feelthefonk">
-                        <h3>Digital <i class="fab fa-github"></i></h3>
-                        <p>Design • Innovation • Harmonie</p>
-                    </a>
-                </div>
-                <div class="card">
-                    <a class="anchor" href="https://soundcloud.com/clement-serriere">
-                        <h3>Musique <i class="fab fa-soundcloud"></i></h3>
-                        <p>Jazz • Funk • Underground</p>
-                    </a>
-                </div>
-            </div>
+      <div class="container">
+        <h2 class="title">Création</h2>
+
+        <div class="section-visual">
+          <!-- (Optionnel) Un SVG de décor supplémentaire -->
         </div>
+
+        <div class="grid">
+          <div class="card">
+            <a class="anchor" href="https://github.com/feelthefonk">
+              <h3>Digital <i class="fab fa-github"></i></h3>
+              <p>Design • Innovation • Harmonie</p>
+            </a>
+          </div>
+            <!-- Triple vague animée -->
+            <svg viewBox="0 0 400 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <style>
+                path {
+                  fill: none;
+                  stroke: rgba(212,160,23,0.6);
+                  stroke-width: 2;
+                  animation: waveShift 6s ease-in-out infinite;
+                }
+                path:nth-child(2) {
+                  stroke: rgba(212,160,23,0.4);
+                  animation-delay: 2s;
+                }
+                path:nth-child(3) {
+                  stroke: rgba(212,160,23,0.8);
+                  animation-delay: 4s;
+                }
+                @keyframes waveShift {
+                  0%, 100% {
+                    d: path("M0,100 C100,50 300,150 400,100");
+                  }
+                  50% {
+                    d: path("M0,100 C100,150 300,50 400,100");
+                  }
+                }
+              </style>
+              <path d="M0,100 C100,50 300,150 400,100" />
+              <path d="M0,100 C100,50 300,150 400,100" />
+              <path d="M0,100 C100,50 300,150 400,100" />
+            </svg>
+          <div class="card">
+            <a class="anchor" href="https://soundcloud.com/clement-serriere">
+              <h3>Musique <i class="fab fa-soundcloud"></i></h3>
+              <p>Jazz • Funk • Underground</p>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
-</main>
+  </main>
 
-<footer>
+  <footer>
     <div class="social">
-        <a class="icon" href="https://github.com/feelthefonk">
-            <i class="fab fa-github"></i>
-        </a>
-        <a class="icon" href="https://soundcloud.com/clement-serriere">
-            <i class="fab fa-soundcloud"></i>
-        </a>
+      <a class="icon" href="https://github.com/feelthefonk">
+        <i class="fab fa-github"></i>
+      </a>
+      <a class="icon" href="https://soundcloud.com/clement-serriere">
+        <i class="fab fa-soundcloud"></i>
+      </a>
     </div>
-</footer>
+  </footer>
 
-<script src="js/scripts.js"></script>
+  <!-- Votre scripts.js -->
+  <script src="js/scripts.js"></script>
+</body>
 </html>
